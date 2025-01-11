@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Website</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      color: #0F0E0E;
+      font-size: 16px;
+      background-image: url('https://t4.ftcdn.net/jpg/04/24/30/93/240_F_424309320_UkOxg2z3sq7yXwGnWCO6xBXkRI4byhnI.jpg');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    h1 {
+      color: #0F0E0E;
+      font-size: 1.5em;
+    }
+
+    h2 {
+      font-size: 1.2em;
+    }
+
+    button {
+      background-color: #40E0D0;
+      color: #0F0E0E;
+      padding: 15px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 30px
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div>
+    <h1>Welcome Sharmayne Dianne!</h1>
+    <h2>What do you want to review today?</h2>
+    <h2>Set A</h2>
+
+    <div>
+      <button onclick="redirectToPage('naplex.html')">CPR</button>
+      <button onclick="redirectToPage('source1.html')">Source 1</button>
+      <button onclick="redirectToPage('page3.html')">Source 2</button>
+      <button onclick="redirectToPage('page4.html')">Source 3</button>
+      <button onclick="redirectToPage('page5.html')">Source 4</button>
+
+    <h2>Set B</h2>
+    <div>
+      <button onclick="redirectToPage('page5.html')">Source 4</button>
+      <button onclick="redirectToPage('page5.html')">Source 4</button>
+      <button onclick="redirectToPage('page5.html')">Source 4</button>
+
+     
+
+    </div>
+     
+
+  </div>
+
+  <script>
+    function redirectToPage(page) {
+      window.location.href = page;
+    }
+  </script>
+
+</body>
+
+</html>
