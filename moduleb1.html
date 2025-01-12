@@ -103,7 +103,7 @@
 
   async function fetchQuizData() {
     const sheetId = '17INvkbiGImNx507arMa0OuujpDQ__GLhh89bui054dk';
-    const range = 'moduleb1!A2:L'; // Updated range to include explanation column
+    const range = 'moduleb1!A2:L'; // Ensure the range includes columns B-F for answers and G-K for correctness
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=AIzaSyAcrsXqfip4njt0febzpVtfppT-ulcOt2Q`;
 
     try {
@@ -114,18 +114,18 @@
         return {
           question: row[0],
           answers: [
-            { text: row[1], correct: row[5].toLowerCase() === 'true' },
-            { text: row[2], correct: row[6].toLowerCase() === 'true' },
-            { text: row[3], correct: row[7].toLowerCase() === 'true' },
-            { text: row[4], correct: row[8].toLowerCase() === 'true' },
+            { text: row[1], correct: row[6].toLowerCase() === 'true' },
+            { text: row[2], correct: row[7].toLowerCase() === 'true' },
+            { text: row[3], correct: row[8].toLowerCase() === 'true' },
+            { text: row[4], correct: row[9].toLowerCase() === 'true' },
+            { text: row[5], correct: row[10].toLowerCase() === 'true' }, // Added column F and K
           ],
-          explanation: row[9], // Add explanation from Column J
-          selectedAnswer: null, // Track the selected answer
+          explanation: row[11], // Adjusted explanation column to match new data
+          selectedAnswer: null,
         };
       });
 
       questions = shuffleArray(questions).slice(0, 10);
-
       startQuiz();
     } catch (error) {
       console.error('Error fetching quiz data:', error);
@@ -170,7 +170,7 @@
     buttons.forEach((button) => button.classList.remove('active'));
 
     event.target.classList.add('active');
-    questions[currentQuestionIndex].selectedAnswer = answer.text; // Store selected answer
+    questions[currentQuestionIndex].selectedAnswer = answer.text;
 
     if (currentQuestionIndex < questions.length - 1) {
       nextButton.classList.remove('hide');
