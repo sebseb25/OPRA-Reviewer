@@ -1,1 +1,226 @@
+<!-- HTML -->
+<div id="quiz-container">
+  <div id="question-container"></div>
+  <div id="answer-buttons" class="btn-container"></div>
+  <button id="next-button" class="btn hide" onclick="nextQuestion()">Next</button>
+  <div id="result-container" class="hide"></div>
+  <button id="restart-button" class="btn hide" onclick="resetQuiz()">Restart</button>
+  <button id="home-button" class="btn" onclick="redirectToHome()">Home</button>
+</div>
 
+<!-- CSS -->
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    color: #0F0E0E;
+    margin: 0;
+    padding: 0;
+    background-image: url('https://t4.ftcdn.net/jpg/04/24/30/93/240_F_424309320_UkOxg2z3sq7yXwGnWCO6xBXkRI4byhnI.jpg');
+    background-size: cover;
+  }
+
+  #quiz-container {
+    max-width: 150%;
+    margin: 10px;
+    font-size: 40px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  @media screen and (max-width: 600px) {
+    #quiz-container {
+      margin: 10px;
+    }
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .btn-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-align: left;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 40px;
+  }
+
+  #next-button,
+  #restart-button,
+  #home-button {
+    cursor: pointer;
+    padding: 20px 20px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 40px;
+    margin-top: 20px;
+  }
+
+  .btn:hover {
+    background-color: #45a049;
+  }
+
+  .btn:active {
+    background-color: #40e0d0;
+  }
+
+  .btn.active {
+    background-color: #40e0d0;
+  }
+</style>
+
+<!-- JavaScript -->
+<script>
+  let questions = [];
+  let currentQuestionIndex = 0;
+  let score = 0;
+
+  const quizContainer = document.getElementById('quiz-container');
+  const questionContainer = document.getElementById('question-container');
+  const answerButtons = document.getElementById('answer-buttons');
+  const nextButton = document.getElementById('next-button');
+  const resultContainer = document.getElementById('result-container');
+  const restartButton = document.getElementById('restart-button');
+  const homeButton = document.getElementById('home-button');
+
+  async function fetchQuizData() {
+    const sheetId = '17INvkbiGImNx507arMa0OuujpDQ__GLhh89bui054dk';
+    const range = 'moduleb1!A2:L'; // Updated range to include explanation column
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=AIzaSyAcrsXqfip4njt0febzpVtfppT-ulcOt2Q`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      questions = data.values.map((row) => {
+        return {
+          question: row[0],
+          answers: [
+            { text: row[1], correct: row[5].toLowerCase() === 'true' },
+            { text: row[2], correct: row[6].toLowerCase() === 'true' },
+            { text: row[3], correct: row[7].toLowerCase() === 'true' },
+            { text: row[4], correct: row[8].toLowerCase() === 'true' },
+          ],
+          explanation: row[9], // Add explanation from Column J
+          selectedAnswer: null, // Track the selected answer
+        };
+      });
+
+      questions = shuffleArray(questions).slice(0, 10);
+
+      startQuiz();
+    } catch (error) {
+      console.error('Error fetching quiz data:', error);
+    }
+  }
+
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    nextButton.classList.add('hide');
+    resultContainer.classList.add('hide');
+    restartButton.classList.add('hide');
+    showQuestion(questions[currentQuestionIndex]);
+  }
+
+  function showQuestion(question) {
+    questionContainer.innerHTML = question.question;
+    answerButtons.innerHTML = '';
+    question.answers.forEach((answer) => {
+      const button = document.createElement('button');
+      button.innerText = answer.text;
+      button.classList.add('btn');
+      button.addEventListener('click', () => selectAnswer(answer));
+      answerButtons.appendChild(button);
+    });
+  }
+
+  function selectAnswer(answer) {
+    if (answer.correct) {
+      score++;
+    }
+
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach((button) => button.classList.remove('active'));
+
+    event.target.classList.add('active');
+    questions[currentQuestionIndex].selectedAnswer = answer.text; // Store selected answer
+
+    if (currentQuestionIndex < questions.length - 1) {
+      nextButton.classList.remove('hide');
+    } else {
+      showResults();
+    }
+  }
+
+  function showResults() {
+    questionContainer.innerHTML = '';
+    answerButtons.innerHTML = '';
+    nextButton.classList.add('hide');
+
+    resultContainer.innerHTML = `Your Score: ${score} out of ${questions.length}<br><br>`;
+
+    questions.forEach((question, index) => {
+      const correctAnswerIndex = question.answers.findIndex((answer) => answer.correct);
+      const selectedAnswer = question.selectedAnswer;
+      const correctAnswer = question.answers[correctAnswerIndex].text;
+
+      resultContainer.innerHTML += `
+        <strong>Question ${index + 1}:</strong> ${question.question}<br>
+        <strong>Your Answer:</strong> ${selectedAnswer || 'No answer selected'}<br>
+        <strong>Correct Answer:</strong> ${correctAnswer}<br>
+        <strong>Explanation:</strong> ${question.explanation || 'No explanation provided.'}<br>
+        <strong>Was your answer correct?</strong> ${selectedAnswer === correctAnswer ? 'Yes' : 'No'}<br><br>
+      `;
+    });
+
+    resultContainer.classList.remove('hide');
+    restartButton.classList.remove('hide');
+  }
+
+  function nextQuestion() {
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex < questions.length) {
+      showQuestion(questions[currentQuestionIndex]);
+    } else {
+      showResults();
+    }
+  }
+
+  function resetQuiz() {
+    fetchQuizData();
+  }
+
+  function redirectToHome() {
+    window.location.href = 'Home.html';
+  }
+
+  fetchQuizData();
+</script>
